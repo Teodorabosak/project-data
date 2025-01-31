@@ -164,7 +164,7 @@ html_static_path = ['_static']
 # html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'DataAnalyticsProjectdoc'
+htmlhelp_basename = 'project-datadoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -184,9 +184,9 @@ latex_elements = {
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
     ('index',
-     'DataAnalyticsProject.tex',
+     'project-data.tex',
      u'project-data Documentation',
-     u"Teodorabosak", 'manual'),
+     u"Your name (or your organization/company/team)", 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -215,8 +215,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'DataAnalyticsProject', u'project-data Documentation',
-     [u"Teodorabosak"], 1)
+    ('index', 'project-data', u'project-data Documentation',
+     [u"Your name (or your organization/company/team)"], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -229,8 +229,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'DataAnalyticsProject', u'project-data Documentation',
-     u"Teodorabosak", 'project-data',
+    ('index', 'project-data', u'project-data Documentation',
+     u"Your name (or your organization/company/team)", 'project-data',
      'A short description of the project.', 'Miscellaneous'),
 ]
 
