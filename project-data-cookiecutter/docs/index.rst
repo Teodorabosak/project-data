@@ -1,9 +1,9 @@
-.. project-data documentation master file, created by
+.. project-data-cookiecutter documentation master file, created by
    sphinx-quickstart.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-project-data documentation!
+project-data-cookiecutter documentation!
 ==============================================
 
 Contents:

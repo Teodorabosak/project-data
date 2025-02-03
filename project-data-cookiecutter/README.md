@@ -1,4 +1,4 @@
-project-data
+project-data-cookiecutter
 ==============================
 
 A short description of the project.
