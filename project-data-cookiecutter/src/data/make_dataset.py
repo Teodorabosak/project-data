@@ -28,7 +28,8 @@ def merge_raw_csv_files(input_dir="data/raw", output_file="data/interim/merged.c
             print(f"❌ Error reading {file}: {e}")
 
     merged_df = pd.concat(df_list, ignore_index=True)
-
+    
+    
     if id_column in merged_df.columns:
         merged_df.drop_duplicates(subset=[id_column], inplace=True)
 
@@ -68,22 +69,49 @@ def merge_raw_csv_files(input_dir="data/raw", output_file="data/interim/merged.c
     merged_df['Region ID'] = merged_df['Region'].map(region_mapping)
     merged_df['Category ID'] = merged_df['Product Category'].map(category_mapping)
     merged_df['Subcategory ID'] = merged_df['Product Sub-Category'].map(subcategory_mapping)
-    
+    merged_df['Order ID']
     merged_df['Product ID'] = pd.factorize(merged_df['Product Name'])[0]
 
-    merged_df = merged_df.where(pd.notnull(merged_df), None)
     
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     merged_df.to_csv(output_file, index=False, sep=delimiter)
 
     print(f"✅ Merged {len(all_files)} CSV files into {output_file}. Total rows: {len(merged_df)}")
 
-if __name__ == "__main__":
-    merge_raw_csv_files()
-    
+
 #########################################################################
 
+def merge_return(orders, returns, output, delimiter='|'):
+    
+    orders = r'C:\Users\teodora.bosak\Desktop\project-data\project-data-cookiecutter\data\interim\merged.csv'
+    returns = r'C:\Users\teodora.bosak\Desktop\project-data\project-data-cookiecutter\data\interim\Returns.csv'
+    output = r'C:\Users\teodora.bosak\Desktop\project-data\project-data-cookiecutter\data\interim\OrderWithReturns.csv'
+    
+    try: 
+        df_orders =pd.read_csv(orders, sep=delimiter)
+        df_returns= pd.read_csv(returns, sep=delimiter)
+        
+        merged_df = pd.merge(df_orders,df_returns, on='Order ID', how='left')
+        merged_df['Status']=merged_df["Status"].fillna('')
+        
+        os.makedirs(os.path.dirname(output), exist_ok=True)
+        merged_df.to_csv(output, sep=delimiter, index=False)
+        
+        print(f'✅ Merged data saved to {output}. Total rows: {len(merged_df)}')
+    except Exception as e:
+        print(f'❌ Error: {e}')
 
+
+if __name__ == "__main__":
+    merge_raw_csv_files()  # Prvo spajanje 
+    
+    # dodavanje return informacija
+    merge_return(
+        orders="C:\\Users\\teodora.bosak\\Desktop\\project-data\\project-data-cookiecutter\\data\\interim\\merged.csv",
+        returns="C:\\Users\\teodora.bosak\\Desktop\\project-data\\project-data-cookiecutter\\data\\interim\\Returns.csv",
+        output="C:\\Users\\teodora.bosak\\Desktop\\project-data\\project-data-cookiecutter\\data\\interim\\OrderWithReturns.csv"
+    )
+    
 
 @click.command()
 @click.argument('input_filepath', type=click.Path(exists=True))

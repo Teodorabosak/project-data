@@ -2,7 +2,7 @@ import os
 import pandas as pd
 import pyodbc
 class DataProcessor:
-    def __init__(self, input_file="data/interim/merged.csv", output_dir="data/processed", delimiter="|"):
+    def __init__(self, input_file="data/interim/OrderWithReturns.csv", output_dir="data/processed", delimiter="|"):
         self.input_file = input_file
         self.output_dir = output_dir
         self.delimiter = delimiter
@@ -45,6 +45,7 @@ class DataProcessor:
                 "Order Priority": "order_priority",
                 "Profit":"profit",
                 "Quantity ordered new":"quantity",
+                "Status":"returned",
                 "Sales": "sales",
             
             },
@@ -53,11 +54,8 @@ class DataProcessor:
                 "Product Name": "ProductName",
                 "Product Container": "ProductContainer",
                 "Subcategory ID": "Subcategory"
-            },
-            "Returned":{
-                "Order ID":"id_order",
-                "Status":"status_o"
             }
+            
         }
     def load_data(self):
         """Loads the merged CSV file into a DataFrame."""
@@ -65,7 +63,7 @@ class DataProcessor:
             raise FileNotFoundError(f"❌ Input file not found: {self.input_file}")
 
         try:
-            df = pd.read_csv(self.input_file, delimiter=self.delimiter, dtype=str, na_values=[' ', 'NA', 'NaN', None, 'null', ''])
+            df = pd.read_csv(self.input_file, delimiter=self.delimiter, dtype=str, na_values=[' '])
             print(f"✅ Successfully loaded data from {self.input_file}. Shape: {df.shape}")
             
             df.replace(r'^\s*$', None, regex=True, inplace=True)
@@ -101,7 +99,7 @@ class DataProcessor:
     
     def extract_orders(self):
         """Extracts orders-related data and saves it."""
-        orders_columns = ["Row ID","Order ID", "Customer ID", "Product ID", "Postal Code", "Region ID", "Order Priority", "Discount","Unit Price","Shipping Cost","Ship Mode","Product Base Margin","Order Date","Ship Date","Profit","Quantity ordered new","Sales"]
+        orders_columns = ["Row ID","Order ID", "Customer ID", "Product ID", "Postal Code", "Region ID", "Order Priority", "Discount","Unit Price","Shipping Cost","Ship Mode","Product Base Margin","Order Date","Ship Date","Profit","Quantity ordered new","Sales", "Status"]
         self._extract_and_save(orders_columns, "orders.csv", unique_columns=["Row ID"])
 
     def _extract_and_save(self, columns, output_filename, unique_columns):
@@ -115,7 +113,10 @@ class DataProcessor:
     def import_to_database(self, table_name, csv_file):
         """Imports the extracted CSV data into the specified database table."""
         # Read the CSV file to import into the database
-        data_df = pd.read_csv(csv_file, delimiter=self.delimiter, dtype=str)
+        data_df = pd.read_csv(csv_file, delimiter=self.delimiter, dtype=str, na_values=[' '])
+        data_df.replace(r'^\s*$', None, regex=True, inplace=True)
+        
+        data_df = data_df.where(pd.notnull(data_df), None)
 
         # Get the column mapping for the current table
         if table_name not in self.column_mappings:
@@ -149,7 +150,7 @@ class DataProcessor:
         finally:
             cursor.close()
             conn.close()
-            print(f"✅ Database connection closed")
+            print(f"Database connection closed")
             
 if __name__ == "__main__":
     processor = DataProcessor()
@@ -166,4 +167,4 @@ if __name__ == "__main__":
     processor.import_to_database("Products", "data/processed/products.csv")
     processor.import_to_database("Locations", "data/processed/locations.csv")
     processor.import_to_database("Orders", "data/processed/orders.csv")
-    processor.import_to_database("Returned", "data/processed/Returns.csv")
+    #processor.import_to_database("Returned", "data/processed/Returns.csv")
