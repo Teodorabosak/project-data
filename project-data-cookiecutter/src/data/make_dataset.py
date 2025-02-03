@@ -64,12 +64,14 @@ def merge_raw_csv_files(input_dir="data/raw", output_file="data/interim/merged.c
         "Appliances": 16,
         "Pens & Art Supplies": 17 
     }
+    
     merged_df['Region ID'] = merged_df['Region'].map(region_mapping)
     merged_df['Category ID'] = merged_df['Product Category'].map(category_mapping)
     merged_df['Subcategory ID'] = merged_df['Product Sub-Category'].map(subcategory_mapping)
- 
-    merged_df['Product ID'] = merged_df['Product Name'].apply(lambda x: hash(x) % 1000)  
     
+    merged_df['Product ID'] = pd.factorize(merged_df['Product Name'])[0]
+
+    merged_df = merged_df.where(pd.notnull(merged_df), None)
     
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     merged_df.to_csv(output_file, index=False, sep=delimiter)
