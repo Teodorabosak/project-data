@@ -1,0 +1,7 @@
+{
+    "python.analysis.extraPaths": [
+        "./project-data-cookiecutter/src/data",
+        "./project-data-cookiecutter/src",
+        "./"
+    ]
+}

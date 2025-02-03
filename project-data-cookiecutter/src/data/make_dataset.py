@@ -4,6 +4,84 @@ import logging
 from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
 
+#MERGE DATA FILES
+import os
+import pandas as pd
+
+def merge_raw_csv_files(input_dir="data/raw", output_file="data/interim/merged.csv", delimiter="|", id_column="Row ID"):
+    """Merge all CSV files from input_dir into a single file, remove duplicate row_id, and save to output_file."""
+    
+    all_files = [f for f in os.listdir(input_dir) if f.endswith('.csv')]
+    if not all_files:
+        print("❌ No CSV files found in", input_dir)
+        return
+    
+    df_list = []
+    
+    for file in all_files:
+        file_path = os.path.join(input_dir, file)
+        try:
+            df = pd.read_csv(file_path, delimiter=delimiter, dtype=str)  # Čitamo sve kao stringove da izbegnemo greške
+            df_list.append(df)
+            print(f"✅ Successfully loaded: {file}")
+        except Exception as e:
+            print(f"❌ Error reading {file}: {e}")
+
+    merged_df = pd.concat(df_list, ignore_index=True)
+
+    if id_column in merged_df.columns:
+        merged_df.drop_duplicates(subset=[id_column], inplace=True)
+
+     # Add Region ID column based on the Region name
+    region_mapping = {
+        "Central": 1,
+        "East": 2,
+        "South": 3,
+        "West": 4
+    }
+    category_mapping = {
+        "Furniture": 1,
+        "Office Supplies": 2,
+        "Technology":3
+    }
+    
+    subcategory_mapping = {
+        "Office Furnishings": 1,
+        "Chairs & Chairmats": 2,
+        "Bookcases": 3,
+        "Tables": 4,
+        "Paper": 5,
+        "Rubber Bands": 6,
+        "Envelopes": 7,
+        "Scissors, Rulers and Trimmers": 8,
+        "Binders and Binder Accessories": 9,
+        "Labels": 10,
+        "Storage & Organization": 11,
+        "Computer Peripherals": 12,
+        "Telephones and Communication": 13,
+        "Office Machines": 14,
+        "Copiers and Fax": 15,
+        "Appliances": 16,
+        "Pens & Art Supplies": 17 
+    }
+    merged_df['Region ID'] = merged_df['Region'].map(region_mapping)
+    merged_df['Category ID'] = merged_df['Product Category'].map(category_mapping)
+    merged_df['Subcategory ID'] = merged_df['Product Sub-Category'].map(subcategory_mapping)
+ 
+    merged_df['Product ID'] = merged_df['Product Name'].apply(lambda x: hash(x) % 1000)  
+    
+    
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    merged_df.to_csv(output_file, index=False, sep=delimiter)
+
+    print(f"✅ Merged {len(all_files)} CSV files into {output_file}. Total rows: {len(merged_df)}")
+
+if __name__ == "__main__":
+    merge_raw_csv_files()
+    
+#########################################################################
+
+
 
 @click.command()
 @click.argument('input_filepath', type=click.Path(exists=True))
